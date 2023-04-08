@@ -3,47 +3,106 @@ from tkinter import *
 from random import randint
 from PIL import ImageTk, Image
 
+
+def change_image(image_file, element):
+    image=Image.open(image_file)
+    photo=ImageTk.PhotoImage(image.resize((field_size, field_size)))
+    element.configure(image=photo)
+    element.image=photo
+
+
+#ustawienie/usuniecie namiotu
 def left_click(event,x,y):
-    cell=(y-1)*size+(x-1)
-   # print(open_f[cell])
+    column=x-1
+    row=y-1
+
+    cell=row*size+column
     if(open_f[cell]==1 or open_f[cell]==2 or open_f[cell]==4 or open_f[cell]==5):
         return
         
     if(open_f[cell]==3):
         open_f[cell]=0
-        image = Image.open("B.png")
+        change_image("B.png", event.widget)
+        
+        row_count[column]+=1
+        column_count[row]+=1
+        
+        labelsX[column].config(text=row_count[column])
+        labelsY[row].config(text=column_count[row])
+        
+        arguments=get_adjacent_fields_ver_9(cell)
+        unset_all_X(arguments)
+        
+        if(row_count[column]==1):
+            for j in range(column, total_size, size):
+                if(open_f[j]==5):
+                    if(not adjacent_to_tent(j) and row_count[j%size]!=0 
+                    and column_count[int(j/size)]!=0):
+                        open_f[j]=0
+                        change_image("B.png",fields[j])
+
+        if(column_count[row]==1):
+            for j in range(0, size):
+                if(open_f[row*size+j]==5):
+                    tmp_cell=row*size+j
+                    if(not adjacent_to_tent(tmp_cell) and row_count[tmp_cell%size]!=0 
+                    and column_count[int(tmp_cell/size)]!=0):
+                        open_f[tmp_cell]=0
+                        change_image("B.png",fields[tmp_cell])
+
+        
     else:
         open_f[cell]=3
-        image = Image.open("N.png")
+        change_image("N.png", event.widget)
         
-    photo = ImageTk.PhotoImage(image.resize((field_size, field_size)))
-    
-    event.widget.configure(image=photo)
-    event.widget.image=photo
-    
-    
-   
+        row_count[column]-=1
+        column_count[row]-=1
+        
+        labelsX[column].config(text=row_count[column])
+        labelsY[row].config(text=column_count[row])
 
+        arguments=get_adjacent_fields_ver_9(cell)
+        set_all_to_X(arguments)
+        
+        if(row_count[column]==0):
+           for j in range(column, total_size, size):
+                if(open_f[j]==0):
+                    open_f[j]=5
+                    change_image("Xaut.png",fields[j])
+
+        if(column_count[row]==0):
+            for j in range(0, size):
+                if(open_f[row*size+j]==0):
+                    open_f[row*size+j]=5
+                    change_image("Xaut.png",fields[row*size+j])
+
+    
+
+#ustawienie/usuniecie X-sa
 def right_click(event,x,y): 
-    cell=(y-1)*size+(x-1) 
-    print(open_f[cell])
+    column=x-1
+    row=y-1
+    
+    cell=row*size+column 
     if(open_f[cell]==1 or open_f[cell]==2 or open_f[cell]==3 or open_f[cell]==5):
         return
 
     #usuwamy "X" z pola
     if(open_f[cell]==4):
-        open_f[cell]=0
-        image = Image.open("B.png")
+        if(adjacent_to_tent(cell)):
+            open_f[cell]=5
+            change_image("Xaut.png",event.widget)
+        elif(column_count[row]==0 or row_count[column]==0):
+            open_f[cell]=5
+            change_image("Xaut.png",event.widget)   
+        else:
+            open_f[cell]=0
+            change_image("B.png", event.widget)
     #oznaczamy to pole jako "X"
     else:
         open_f[cell]=4
-        image = Image.open("X.png")
-        
-    photo = ImageTk.PhotoImage(image.resize((field_size, field_size)))
-    
-    event.widget.configure(image=photo)
-    event.widget.image=photo
-    
+        change_image("X.png", event.widget)
+
     
 
 field_size=80
@@ -54,22 +113,44 @@ size=10
 total_size=size*size
 
 
+def set_all_to_X(arguments9):
+    for i in arguments9:
+        if(open_f[i]==0):
+            open_f[i]=5
+            change_image("Xaut.png",fields[i])
+    return 0
+    
+    
+def unset_all_X(arguments9):
+    for i in arguments9:
+        if(open_f[i]==5):
+            if(not adjacent_to_tent(i) and row_count[i%size]!=0 
+            and column_count[int(i/size)]!=0):
+                open_f[i]=0
+                change_image("B.png",fields[i])
+
+
+def adjacent_to_tent(cell):
+    arguments9=get_adjacent_fields_ver_9(cell)
+
+    for i in arguments9:
+        if(open_f[i]==3):
+            return 1
+    
+    return 0
+
 
 def check_tents(arguments9):
-    i=0
-    while(i<len(arguments9)):
-        if(array[arguments9[i]]=="N"):
+    for i in arguments9:
+        if(array[i]=="N"):
             return 1
-        i+=1
     return 0
     
     
 def check_available_place(arguments4):
-    i=0
-    while(i<len(arguments4)):
-        if(array[arguments4[i]]=="X"):
+    for i in arguments4:
+        if(array[i]=="X"):
             return 0
-        i+=1
     
     return 1
 
@@ -77,11 +158,9 @@ def check_available_place(arguments4):
 def set_close(cell):
     arguments4=get_adjacent_fields_ver_4(cell)
     
-    i=0
-    while(i<len(arguments4)):
-        if(array[arguments4[i]]!="T"):
-            open_f[arguments4[i]]=0
-        i+=1
+    for i in arguments4:
+        if(array[i]!="T"):
+            open_f[i]=0
 
 
 
@@ -209,6 +288,10 @@ def set_X_on_0_rows_and_columns():
 
 window=tkinter.Tk()
 
+fields=list()
+labelsX=list()
+labelsY=list()
+
 
 while(True):
     array=['X']*total_size
@@ -240,7 +323,8 @@ for x in range(1,size+1):
     field.grid_columnconfigure(x, weight=1)
     field.grid(row=0,column=x, sticky="nsew")
     label.grid(row=0,column=x)
-   
+    labelsX.append(label)
+
 
 for y in range(1,size+1):
     field=Frame(window, width=field_size, height=field_size, background="yellow",highlightbackground="black", highlightthickness=1)
@@ -249,6 +333,7 @@ for y in range(1,size+1):
     label=Label(field, text=column_count[y-1], bg="yellow", font=("Arial", 20))
     field.grid(row=y,column=0,sticky="nsew")
     label.grid(row=y,column=0)
+    labelsY.append(label)
 
     for x in range(1,size+1):
         field=Frame(window, width=field_size, height=field_size, background="white",highlightbackground="black", highlightthickness=1)
@@ -273,6 +358,8 @@ for y in range(1,size+1):
         
         label.bind("<Button-1>", lambda event, y=y, x=x: left_click(event,x,y))
         label.bind("<Button-3>", lambda event, y=y, x=x: right_click(event,x,y))
+        
+        fields.append(label)
         
     
 
