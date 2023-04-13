@@ -1,5 +1,5 @@
-import tkinter
 from tkinter import *
+from tkinter import messagebox
 from random import randint
 from PIL import ImageTk, Image
 
@@ -17,11 +17,11 @@ def left_click(event,x,y):
     row=y-1
 
     cell=row*size+column
-    if(open_f[cell]==1 or open_f[cell]==2 or open_f[cell]==4 or open_f[cell]==5):
+    if(open_f[cell]=="tree" or open_f[cell]=="x_beg" or open_f[cell]=="x_pl" or open_f[cell]=="x_aut"):
         return
         
-    if(open_f[cell]==3):
-        open_f[cell]=0
+    if(open_f[cell]=="tent"):
+        open_f[cell]="open"
         change_image("B.png", event.widget)
         
         row_count[column]+=1
@@ -35,24 +35,23 @@ def left_click(event,x,y):
         
         if(row_count[column]==1):
             for j in range(column, total_size, size):
-                if(open_f[j]==5):
+                if(open_f[j]=="x_aut"):
                     if(not adjacent_to_tent(j) and row_count[j%size]!=0 
                     and column_count[int(j/size)]!=0):
-                        open_f[j]=0
+                        open_f[j]="open"
                         change_image("B.png",fields[j])
 
         if(column_count[row]==1):
             for j in range(0, size):
-                if(open_f[row*size+j]==5):
+                if(open_f[row*size+j]=="x_aut"):
                     tmp_cell=row*size+j
                     if(not adjacent_to_tent(tmp_cell) and row_count[tmp_cell%size]!=0 
                     and column_count[int(tmp_cell/size)]!=0):
-                        open_f[tmp_cell]=0
+                        open_f[tmp_cell]="open"
                         change_image("B.png",fields[tmp_cell])
 
-        
     else:
-        open_f[cell]=3
+        open_f[cell]="tent"
         change_image("N.png", event.widget)
         
         row_count[column]-=1
@@ -66,15 +65,18 @@ def left_click(event,x,y):
         
         if(row_count[column]==0):
            for j in range(column, total_size, size):
-                if(open_f[j]==0):
-                    open_f[j]=5
+                if(open_f[j]=="open"):
+                    open_f[j]="x_aut"
                     change_image("Xaut.png",fields[j])
 
         if(column_count[row]==0):
             for j in range(0, size):
-                if(open_f[row*size+j]==0):
-                    open_f[row*size+j]=5
+                if(open_f[row*size+j]=="open"):
+                    open_f[row*size+j]="x_aut"
                     change_image("Xaut.png",fields[row*size+j])
+                    
+        if(check_game_win()):
+            game_won()
 
     
 
@@ -84,49 +86,40 @@ def right_click(event,x,y):
     row=y-1
     
     cell=row*size+column 
-    if(open_f[cell]==1 or open_f[cell]==2 or open_f[cell]==3 or open_f[cell]==5):
+    if(open_f[cell]=="tree" or open_f[cell]=="x_beg" or open_f[cell]=="tent" or open_f[cell]=="x_aut"):
         return
 
     #usuwamy "X" z pola
-    if(open_f[cell]==4):
+    if(open_f[cell]=="x_pl"):
         if(adjacent_to_tent(cell)):
-            open_f[cell]=5
+            open_f[cell]="x_aut"
             change_image("Xaut.png",event.widget)
         elif(column_count[row]==0 or row_count[column]==0):
-            open_f[cell]=5
+            open_f[cell]="x_aut"
             change_image("Xaut.png",event.widget)   
         else:
-            open_f[cell]=0
+            open_f[cell]="open"
             change_image("B.png", event.widget)
     #oznaczamy to pole jako "X"
     else:
-        open_f[cell]=4
+        open_f[cell]="x_pl"
         change_image("X.png", event.widget)
-
-    
-
-field_size=80
-
-trees=15
-size=10
-
-total_size=size*size
-
+        
 
 def set_all_to_X(arguments9):
     for i in arguments9:
-        if(open_f[i]==0):
-            open_f[i]=5
+        if(open_f[i]=="open"):
+            open_f[i]="x_aut"
             change_image("Xaut.png",fields[i])
     return 0
     
     
 def unset_all_X(arguments9):
     for i in arguments9:
-        if(open_f[i]==5):
+        if(open_f[i]=="x_aut"):
             if(not adjacent_to_tent(i) and row_count[i%size]!=0 
             and column_count[int(i/size)]!=0):
-                open_f[i]=0
+                open_f[i]="open"
                 change_image("B.png",fields[i])
 
 
@@ -134,7 +127,7 @@ def adjacent_to_tent(cell):
     arguments9=get_adjacent_fields_ver_9(cell)
 
     for i in arguments9:
-        if(open_f[i]==3):
+        if(open_f[i]=="tent"):
             return 1
     
     return 0
@@ -160,7 +153,7 @@ def set_close(cell):
     
     for i in arguments4:
         if(array[i]!="T"):
-            open_f[i]=0
+            open_f[i]="open"
 
 
 
@@ -170,7 +163,7 @@ def set_tree(arguments4):
         tmp=randint(0,len(arguments4)-1)
         if(array[arguments4[tmp]]=="X"):
             array[arguments4[tmp]]="T"
-            open_f[arguments4[tmp]]=1
+            open_f[arguments4[tmp]]="tree"
             set_close(arguments4[tmp])
             break
 
@@ -243,6 +236,7 @@ def get_adjacent_fields_ver_4(cell):
 
 def prepare_game_board(number_of_trees):
     loops=0
+    
     while(number_of_trees>0):
         cell=randint(0, total_size-1)
 
@@ -267,10 +261,10 @@ def prepare_game_board(number_of_trees):
         
         #tyle bylo juz iteracji, ze jest najprawdopodobniej deadlock
         if(loops>4*total_size):
-            return 0
+            return 1
         loops+=1
     
-    return 1
+    return 0
     
     
 def set_X_on_0_rows_and_columns():
@@ -278,37 +272,75 @@ def set_X_on_0_rows_and_columns():
         if(row_count[i]==0):
             for j in range(i, total_size, size):
                 if(array[j]!="T"):
-                    open_f[j]=2
+                    open_f[j]="x_beg"
         if(column_count[i]==0):
             for j in range(0, size):
                 if(array[i*size+j]!="T"):
-                    open_f[i*size+j]=2
+                    open_f[i*size+j]="x_beg"
+
+def check_game_win():
+    for i in row_count:
+        if(i!=0):
+            return 0
+            
+    for i in column_count:
+        if(i!=0):
+            return 0
+            
+    return 1
+
+
+def game_won():
+    messagebox.showinfo("You won",  "You won")
+    
 
 
 
-window=tkinter.Tk()
+
+
+
+
+
+
+
+
+
+window=Tk()
+
+field_size=80
+
+trees=20
+size=10
+
+total_size=size*size
+
+
+if(trees>((size+1)**2)/4):
+    trees=int(((size+1)**2)/4)
+
 
 fields=list()
 labelsX=list()
 labelsY=list()
 
+loops=0
+max_loops=500
 
 while(True):
     array=['X']*total_size
-    open_f=[2]*total_size
+    open_f=["x_beg"]*total_size
     row_count=[0]*size
     column_count=[0]*size
     
-    print(open_f)
-    
     if(prepare_game_board(trees)):
+        loops+=1
+        if(loops>max_loops):
+            trees-=1
+            loops=0
+    else:
         break
 
 set_X_on_0_rows_and_columns()
-
-print(array)
-print(open_f)
-
 
 field=Frame(window, width=field_size, height=field_size, highlightbackground="black", highlightthickness=1)
 
