@@ -4,6 +4,8 @@ from tkinter import messagebox
 from random import randint
 from PIL import ImageTk, Image
 
+import os
+
 
 class Game(Frame):
 
@@ -388,8 +390,8 @@ class Game(Frame):
                 
  
  
- 
- 
+game_directory = os.path.dirname(__file__)
+os.chdir(game_directory)
 
 window=Tk()
 window.geometry("900x800")

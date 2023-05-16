@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter import messagebox
 import random
 import sys
+import os
 
 WINDOW_WIDTH = 700
 WINDOW_HEIGHT = 500
@@ -76,6 +77,10 @@ def game():
 
 def enter_pressed(event):
     guess()
+
+
+game_directory = os.path.dirname(__file__)
+os.chdir(game_directory)
 
 root = Tk()
 root.title('Hangman')
