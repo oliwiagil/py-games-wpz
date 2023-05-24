@@ -49,6 +49,8 @@ def read_text():
         end = True
     num += 1
 
+game_directory = os.path.dirname(__file__)
+os.chdir(game_directory)
 
 root = tk.Tk()
 root.title("wordle")
