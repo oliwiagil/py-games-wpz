@@ -84,9 +84,9 @@ def prepare(folder):
                 game_name=root.removeprefix(".\\")
                 
                 launch=partial(launch_game, 'python '+game_path)
-                Button(window, text=game_name, command=launch, height=2, width=25, font=("Arial",26,"bold"),bg=random.sample(COLORS, 1)[0]).pack()
+                Button(window, text=game_name, command=launch, height=1, width=25, font=("Arial",26,"bold"),bg=random.sample(COLORS, 1)[0]).pack()
                 show_score=partial(score, root)
-                Button(window, text="highscore "+game_name, command=show_score, height=2, width=25, font=("Arial",26,"bold"),bg=random.sample(COLORS, 1)[0]).pack()
+                Button(window, text="highscore "+game_name, command=show_score, height=1, width=25, font=("Arial",26,"bold"),bg=random.sample(COLORS, 1)[0]).pack()
 
 
 window=Tk()
