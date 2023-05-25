@@ -21,12 +21,13 @@ def place_ship_prompt(current, done, total, started_placing):
 
 
 def game_over_prompt(result):
+    just_close = "You can close the window."
     if result == EndState.DRAW:
-        return f'The game ended in a draw! All ships destroyed. There\'s no winner. '
+        return f'The game ended in a draw! All ships destroyed. There\'s no winner. ' + just_close
     if result == EndState.WIN:
-        return f'You won! You destroyed all of the enemy ships. '
+        return f'You won! You destroyed all of the enemy ships. ' + just_close
     if result == EndState.LOSS:
-        return f'You lost! All of your ships were destroyed. '
+        return f'You lost! All of your ships were destroyed. ' + just_close
 
 
 def battle_prompt():
