@@ -65,13 +65,16 @@ COLORS  =[
 def launch_game(command):
     os.system(command)
 
-def score(command):
-    with open(command+"\score.txt") as file:
-        value=file.readlines()
+def score(path):
+    with open(path) as file:
+        lines=file.readlines()
         
         results_window= Toplevel(window)
         results_window.title("Highscore")
-        Label(results_window, text="Your current highscore is:\n"+value[0],font=("Arial",26,"bold")).pack()
+        Label(results_window, text="Your current highscore is:",font=("Arial",26,"bold")).pack()
+        Label(results_window, text="\n",font=("Arial",5)).pack()
+        for line in lines:
+            Label(results_window, text=line,font=("Arial",26,"bold")).pack()
 
 
 def prepare(folder):
@@ -81,12 +84,17 @@ def prepare(folder):
         for name in files:
             if(name=="main.py"):
                 game_path=os.path.join(root, name)
-                game_name=root.removeprefix(".\\")
+               # game_name=root.removeprefix(".\\")
+                game_name=root[2:]
                 
                 launch=partial(launch_game, 'python '+game_path)
                 Button(window, text=game_name, command=launch, height=1, width=25, font=("Arial",26,"bold"),bg=random.sample(COLORS, 1)[0]).pack()
-                show_score=partial(score, root)
-                Button(window, text="highscore "+game_name, command=show_score, height=1, width=25, font=("Arial",26,"bold"),bg=random.sample(COLORS, 1)[0]).pack()
+                
+                score_path=root+"\score.txt"
+                show_score=partial(score, score_path)
+                
+                if(os.path.exists(score_path)):
+                    Button(window, text="highscore "+game_name, command=show_score, height=1, width=25, font=("Arial",26,"bold"),bg=random.sample(COLORS, 1)[0]).pack()
 
 
 window=Tk()
