@@ -1,5 +1,9 @@
 import tkinter as tk
 import random
+import os
+
+game_directory = os.path.dirname(__file__)
+os.chdir(game_directory)
 
 with open('słowa.txt', 'r', encoding='utf-8') as file:
     words = file.readlines()
@@ -48,7 +52,6 @@ def read_text():
     if greens == 5:
         end = True
     num += 1
-
 
 root = tk.Tk()
 root.title("wordle")

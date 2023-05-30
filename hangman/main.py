@@ -1,11 +1,15 @@
 from tkinter import *
 from tkinter import messagebox
+from tkinter import simpledialog
 import random
 import sys
 import os
 
 WINDOW_WIDTH = 700
 WINDOW_HEIGHT = 500
+SCORES_FILE_NAME = "score.txt"
+score = 0
+games_no = 0
 
 
 def draw_word():
@@ -22,8 +26,10 @@ def draw_word():
 
 def guess():
     global no_failed_guesses
-    letter = entered_txt.get()
+    global score
+    global games_no
 
+    letter = entered_txt.get()
     letter_entry.delete(0, END)
     
     if len(letter) > 1:
@@ -52,6 +58,8 @@ def guess():
 
             word_state.set("".join(guessed_letters))
             if word_state.get() == word_with_spaces:
+                score += 1
+                games_no += 1
                 messagebox.showinfo("Hangman", "You guessed the word!")
 
         else:
@@ -59,6 +67,7 @@ def guess():
             image_label.config(image=photos[no_failed_guesses])
     
     if no_failed_guesses == 11:
+        games_no += 1
         messagebox.showwarning("Hangman", "You lost, game over")
         word_state.set("".join(correct_letters))
 
@@ -78,6 +87,30 @@ def game():
 def enter_pressed(event):
     guess()
 
+def save_username():
+    username = simpledialog.askstring("Username", "Please, enter your username:")
+
+    if username:
+        text = ""
+        file_open_mode = ""
+        if os.path.isfile(SCORES_FILE_NAME):
+            text = f'{username:<49}{score}/{games_no}\n'
+            file_open_mode = "a"
+        else:
+            text = f'{"Username":<40} Guessed/Games number\n'
+            text += f'{username:<49}{score}/{games_no}\n'
+            file_open_mode = "w"
+        with open(SCORES_FILE_NAME, file_open_mode) as file:
+            file.write(text)
+    else:
+        messagebox.showwarning("Error", "No username provided!")
+        save_username()
+
+def on_closing():
+    save_username()
+    root.destroy()
+
+
 
 game_directory = os.path.dirname(__file__)
 os.chdir(game_directory)
@@ -87,10 +120,12 @@ root.title('Hangman')
 root.iconbitmap('./window_icon.ico')
 root.resizable(False, False)
 
-photos = [PhotoImage(file="images/hang0.png"), PhotoImage(file="images/hang1.png"), PhotoImage(file="images/hang2.png"),
-PhotoImage(file="images/hang3.png"), PhotoImage(file="images/hang4.png"), PhotoImage(file="images/hang5.png"),
-PhotoImage(file="images/hang6.png"), PhotoImage(file="images/hang7.png"), PhotoImage(file="images/hang8.png"),
-PhotoImage(file="images/hang9.png"), PhotoImage(file="images/hang10.png"), PhotoImage(file="images/hang11.png")]
+photos = [PhotoImage(file="images/hang0.png"), PhotoImage(file="images/hang1.png"), 
+          PhotoImage(file="images/hang2.png"), PhotoImage(file="images/hang3.png"), 
+          PhotoImage(file="images/hang4.png"), PhotoImage(file="images/hang5.png"),
+          PhotoImage(file="images/hang6.png"), PhotoImage(file="images/hang7.png"), 
+          PhotoImage(file="images/hang8.png"), PhotoImage(file="images/hang9.png"), 
+          PhotoImage(file="images/hang10.png"), PhotoImage(file="images/hang11.png")]
 
 screen_width = root.winfo_screenwidth()
 screen_height = root.winfo_screenheight()
@@ -120,4 +155,5 @@ submit_button.pack(ipadx=5, ipady=5, expand=True)
 root.bind("<Return>", enter_pressed)
 
 game()
+root.protocol("WM_DELETE_WINDOW", on_closing)
 root.mainloop()
