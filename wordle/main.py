@@ -14,23 +14,38 @@ with open('słowa.txt', 'r', encoding='utf-8') as file:
 
 rec_size = 80
 distance = 20
-num = 0
+num = 1
 end = False
 
 
 def read_text():
     global num
     global end
-    if num == 6:
+    if end is True:
+        return
+    if num == 7:
+        with open("score.txt", 'r+') as file:
+            zawartosc = file.readlines()
+            for i, linia in enumerate(zawartosc):
+                dane = linia.split()
+                aktualny_indeks = int(dane[0])
+                aktualna_liczba = int(dane[1])
+                if aktualny_indeks == num:
+                    aktualna_liczba += 1
+                    zawartosc[i] = f"{num} {aktualna_liczba}\n"
+                    break
+            file.seek(0)
+            file.writelines(zawartosc)
+        end = True
         return
     text = text_entry.get("1.0", "end-1c")
     if len(text) != 5:
         return
     text = text.upper()
+
     if text not in words:
         return
-    if end is True:
-        return
+
     canvas = tk.Canvas(root, width=500, height=100, bg="white")
     canvas.pack()
     x = 10
@@ -50,6 +65,18 @@ def read_text():
         x += rec_size + distance
 
     if greens == 5:
+        with open("score.txt", 'r+') as file:
+            zawartosc = file.readlines()
+            for i, linia in enumerate(zawartosc):
+                dane = linia.split()
+                aktualny_indeks = int(dane[0])
+                aktualna_liczba = int(dane[1])
+                if aktualny_indeks == num:
+                    aktualna_liczba += 1
+                    zawartosc[i] = f"{num} {aktualna_liczba}\n"
+                    break
+            file.seek(0)
+            file.writelines(zawartosc)
         end = True
     num += 1
 
