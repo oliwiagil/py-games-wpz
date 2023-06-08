@@ -1,11 +1,14 @@
 from tkinter import *
+from tkinter import simpledialog
 from tkinter import messagebox
 
 from random import randint
 from PIL import ImageTk, Image
 
+import time
 import os
 
+SCORES_FILE_NAME = "score.txt"
 
 class Game(Frame):
 
@@ -81,7 +84,8 @@ class Game(Frame):
                         self.change_image("Xaut.png",self.fields[row*self.size+j])
                         
             if(self.check_game_win()):
-                self.game_won()
+                score=round(time.time()-self.start,1)
+                self.game_won(score)
 
         
 
@@ -295,12 +299,24 @@ class Game(Frame):
         return 1
 
 
-    def game_won(self):
-        messagebox.showinfo("You won",  "You won")
+    def game_won(self, score):        
+        username = simpledialog.askstring("You won!", "You won!\nPlease, enter your username to save your score:")
+        if username:
+            text = ""
+            file_open_mode = ""
+            if os.path.isfile(SCORES_FILE_NAME):
+                text = f'{username:<49}{score}\n'
+                file_open_mode = "a"
+            else:
+                text = f'{"Username":<40} Time in seconds\n'
+                text += f'{username:<49}{score}\n'
+                file_open_mode = "w"
+            with open(SCORES_FILE_NAME, file_open_mode) as file:
+                file.write(text)
+        else:
+            messagebox.showwarning("Error", "No username provided!")
+            self.game_won(score)
         
-
-
-
 
     def __init__(self, parent):
         Frame.__init__(self, parent)
@@ -387,6 +403,7 @@ class Game(Frame):
                 label.bind("<Button-3>", lambda event, y=y, x=x: self.right_click(event,x,y))
                 
                 self.fields.append(label)
+        self.start = time.time()
                 
  
  
@@ -397,6 +414,7 @@ window=Tk()
 window.geometry("900x800")
 Game(window).pack(expand="True")
 window.mainloop()
+
 
 
 

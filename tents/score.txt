@@ -1,1 +1,3 @@
-14
+Username                                 Time in seconds
+a                                                40.6
+a                                                21.7
