@@ -2,8 +2,12 @@ from tkinter import *
 import tkinter as tk
 import time
 import random
+import os
+import time
 global out
 
+game_directory = os.path.dirname(__file__)
+os.chdir(game_directory)
 
 def startBall(ball, speed):
     s = random.randint(-speed, speed)
@@ -84,7 +88,14 @@ if __name__ == "__main__":
     label = court.create_window(100, 190, anchor='nw', window=end_of_game_lbl)
     court.itemconfigure(label, state='hidden')
     
+    start = time.time()
     startBall(ball, ball_speed)
-
+    end = time.time()
+    duration = end - start
+    
+    with open('score.txt', 'w', encoding='utf-8') as scores:
+        scores.write(str(duration))
+        scores.write('\n')
+    
     root.mainloop()
 
