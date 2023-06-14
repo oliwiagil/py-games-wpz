@@ -19,7 +19,7 @@ if __name__ == '__main__':
     
     if game.game_phase == game_structs.GamePhase.CONCLUSION:
         score = n_friendly_surviving - n_enemy_surviving + bonus[game.phase_state]
-        prev_score = 0
+        prev_score = -1_000_000
         try:
             with open(os.path.dirname(__file__) + '/score.txt', 'r') as score_file:
                 prev_score = int(score_file.read())
