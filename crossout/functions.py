@@ -59,3 +59,8 @@ def draw_board(board):
                 pygame.draw.circle(screen, const.PINK, (int(col*const.SQUARESIZE+const.SQUARESIZE/2), const.height-int(r*const.SQUARESIZE+const.SQUARESIZE/2)), const.RADIUS)
 
     pygame.display.update()
+
+def update_scoreboard(user, score):
+
+    with open("score.txt", "w") as file:
+        file.writelines([user, ":" ,score])

@@ -49,6 +49,7 @@ while not game_over:
 
                 if f.winning_move(board, 1):
                     label = myfont.render("GRACZ 1 WYGRYWA", 1, const.GREEN)
+                    f.update_scoreboard("gracz 1", "10")
                     screen.blit(label, (40,10))
                     print("GRACZ 1 WINS")
                     game_over = True
@@ -66,6 +67,7 @@ while not game_over:
 
                     if f.winning_move(board, 2):
                         label = myfont.render("GRACZ 2 WYGRYWA", 1, const.PINK)
+                        f.update_scoreboard("gracz 2", "10")
                         screen.blit(label, (40,10))
                         print("GRACZ 1 WINS")
                         print("GRACZ 2 WINS")
