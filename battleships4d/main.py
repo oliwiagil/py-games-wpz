@@ -19,6 +19,13 @@ if __name__ == '__main__':
     
     if game.game_phase == game_structs.GamePhase.CONCLUSION:
         score = n_friendly_surviving - n_enemy_surviving + bonus[game.phase_state]
-        with open(os.path.dirname(__file__) + '/score.txt', 'w') as score_file:
-            score_file.write(str(score))
-
+        prev_score = 0
+        try:
+            with open(os.path.dirname(__file__) + '/score.txt', 'r') as score_file:
+                prev_score = int(score_file.read())
+            with open(os.path.dirname(__file__) + '/score.txt', 'w') as score_file:
+                score_file.write(str(max(score, prev_score)))
+        except:
+            with open(os.path.dirname(__file__) + '/score.txt', 'w') as score_file:
+                score_file.write(str(score))
+    
